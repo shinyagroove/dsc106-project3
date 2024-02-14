@@ -22,7 +22,7 @@
 
 <main>
     <h1>Line Graph</h1>
-    <!-- pass faker_grouped and faker_total into Line -->
+    <!-- pass faker_grouped and faker_total into Line component-->
     {#if faker_grouped && faker_total}
         <Line {faker_grouped} {faker_total} />
     {/if}

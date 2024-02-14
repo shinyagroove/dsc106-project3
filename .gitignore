@@ -8,3 +8,7 @@ node_modules
 !.env.example
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+src/data_prep/lol_2020_data.csv
+src/data_prep/lol_2021_data.csv
+src/data_prep/lol_2022_data.csv
+src/data_prep/lol_2023_data.csv
