@@ -19,6 +19,10 @@
     let gx;
     let gy;
 
+    let data;
+    let checked_champs = {};
+    let overall = true;
+
     // map gamelength to x-coordinate on screen
     $: x = d3
         .scaleLinear()
@@ -37,7 +41,10 @@
         .x((d) => x(d.gamelength)-marginLeft).y((d) => y(d.earnedgold));
 
     // group data by champion
-    $: data = d3.group(faker_grouped, (d) => d.champion);
+    data = d3.group(faker_grouped, (d) => d.champion);
+    data.forEach(d => {
+        checked_champs[d[0].champion] = true
+    });
 
     // x-axis
     $: gx = d3
@@ -55,10 +62,27 @@
 
     // color line by champion
     $: color = d3.scaleOrdinal(d3.schemeTableau10);
+
+
+
+    $: console.log(checked_champs);
+    $: console.log(overall);
+
+    function uncheck_overall(){
+        overall = !overall;
+    };
+
+    function uncheck_champ(d){
+        checked_champs[d[0]] = !checked_champs[d[0]];
+    };
+
+
+
 </script>
 
 <main>
     <div class="line-plot">
+            
         <svg
             bind:this={svg}
             width = "1500"
@@ -66,14 +90,14 @@
             viewBox="0 0 {width} {height}"
             style="max-width: 100%; height: auto;"
         >
-
+        
             <!-- x-axis -->
             <g bind:this={gx} transform="translate(0,{height - marginBottom})" />
             
             <!-- y-axis -->
             <g bind:this={gy} transform="translate({marginLeft},0)">
                 <text 
-                    x="5"
+                    x="0"
                     y="{marginTop}"
                     font-weight="bold"
                     fill="black"
@@ -89,7 +113,7 @@
                         key={i}
                         d={line(d[1])}
                         stroke={color(i)}
-                        stroke-width="2"
+                        stroke-width={checked_champs[d[0]] === true ? "2": "0"}
                     />
                 {/each}
             </g>
@@ -103,7 +127,6 @@
 
             <!-- legend -->
             <g bind:this={legend} transform="translate({width - marginRight}, 0)">
-
                 <text
                     y={marginTop}
                     font-size="12"
@@ -120,7 +143,10 @@
                         <rect
                             width="10"
                             height="10"
-                            fill={color(i)}
+                            fill={checked_champs[d[0]] === true ? color(i): "white"}
+                            stroke = "black"
+                            id = "{d} rect" 
+                            on:click = {uncheck_champ(d)}
                         />
                         <text
                             x="15"
@@ -140,7 +166,9 @@
                     <rect
                         width="10"
                         height="10"
-                        fill="black"
+                        stroke = "black"
+                        fill={overall === true ? "black": "white"}
+                        id = "overall rect"
                     />
                     <text
                         x="15"
