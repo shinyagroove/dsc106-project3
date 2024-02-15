@@ -122,7 +122,7 @@
             <path
                 d={line(faker_total)}
                 stroke="black"
-                stroke-width="2"
+                stroke-width={overall === true ? "2": "0"}
             />
 
             <!-- legend -->
@@ -169,6 +169,7 @@
                         stroke = "black"
                         fill={overall === true ? "black": "white"}
                         id = "overall rect"
+                        on:click = {uncheck_overall}
                     />
                     <text
                         x="15"
