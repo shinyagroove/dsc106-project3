@@ -68,10 +68,18 @@
     $: console.log(checked_champs);
     $: console.log(overall);
 
+    function uncheck_all(data){
+        uncheck_overall();
+        data.forEach((d, i) => {
+            uncheck_champ(d);
+        });
+        
+        
+    }
     function uncheck_overall(){
         overall = !overall;
     };
-
+    
     function uncheck_champ(d){
         checked_champs[d[0]] = !checked_champs[d[0]];
     };
@@ -124,7 +132,7 @@
                 stroke="black"
                 stroke-width={overall === true ? "2": "0"}
             />
-
+            
             <!-- legend -->
             <g bind:this={legend} transform="translate({width - marginRight}, 0)">
                 <text
@@ -182,7 +190,26 @@
                         Overall
                     </text>
                 </g>
-
+                
+                <g transform = "translate(5, {70 + data.size*20} )">
+                    <circle
+                        r="10" 
+                        stroke = "black" 
+                        fill={overall === true ? "lightblue": "white"}
+                        on:click = {uncheck_all(data)}
+                        >
+                    </circle>
+                    <text
+                        x="15"
+                        y="5"
+                        font-size="12"
+                        font-weight="auto"
+                        fill="black"
+                        text-anchor="start"
+                    >
+                        Select / Deselect All
+                    </text>
+                </g>
 
             </g>
 

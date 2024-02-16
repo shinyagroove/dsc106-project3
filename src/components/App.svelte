@@ -26,6 +26,8 @@
     {#if faker_grouped && faker_total}
         <Line {faker_grouped} {faker_total} />
     {/if}
+
+
 </main>
 
 <style>
