@@ -93,7 +93,7 @@
             
         <svg
             bind:this={svg}
-            width = "1500"
+            {width}
             {height}
             viewBox="0 0 {width} {height}"
             style="max-width: 100%; height: auto;"
@@ -133,8 +133,17 @@
                 stroke-width={overall === true ? "2": "0"}
             />
             
+        </svg>
+
+        <svg
+            bind:this={svg}
+            width={200}
+            {height}
+            viewBox="0 0 {200} {height}"
+            style="max-width: 100%; height: auto;"
+        >
             <!-- legend -->
-            <g bind:this={legend} transform="translate({width - marginRight}, 0)">
+            <g bind:this={legend} transform="translate(10, 0)">
                 <text
                     y={marginTop}
                     font-size="12"
@@ -219,3 +228,13 @@
     </div>
     
 </main>
+
+<style>
+
+.line-plot {
+    position: absolute;
+    left: 280px;
+}
+
+
+</style>
