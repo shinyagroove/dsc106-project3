@@ -83,14 +83,16 @@
         checked_champs[d[0]] = !checked_champs[d[0]];
     };
 
-    // interactive tooltip for line
+
+    // interactive tooltip
     let tooltipPt = null;
 
+    
     function onPointerMove(event) {
     }
 
     function onPointerEnter(event) {
-        d3.select(lines).attr("stroke-opacity", ".2");
+        d3.select(lines).attr("stroke-opacity", ".1");
         d3.select(dots).attr("opacity", "1");
     }
 
@@ -106,7 +108,6 @@
         .on('pointerenter', onPointerEnter)
         .on('pointerleave', onPointerLeave);
 
-    console.log(grouped)
 </script>
 
 <main>
@@ -125,8 +126,8 @@
             
             <!-- y-axis -->
             <g bind:this={gy} transform="translate({marginLeft},0)">
-                <text 
-                    x="0"
+                <text
+                    x="5"
                     y="{marginTop}"
                     font-weight="bold"
                     fill="black"
@@ -146,7 +147,6 @@
                         stroke-width={checked_champs[d[0]] === true ? "2": "0"}
                         fill="none"
                     />
-                    {console.log(d[0])}
                 {/each}
             </g>
             
@@ -158,8 +158,8 @@
                         cx={x(d.gamelength)}
                         cy={y(d.earnedgold)}
                         r="2.5"
-                        fill={color(i)}
-                        opacity = 0
+                        fill="black"
+                        opacity = .75
                     />
                 {/each}
             </g>
@@ -188,6 +188,7 @@
                 {#each grouped as d, i}
                     <g transform="translate(0, {40 + i * 20} )">
                         <rect
+                            class="button"
                             width="10"
                             height="10"
                             fill={d[0] === "Overall" && checked_champs[d[0]] === true ? "black" : checked_champs[d[0]] === true ? color(i) : "white"}
@@ -211,6 +212,7 @@
                 <!-- Select / Deselect All -->
                 <g transform = "translate(5, {50 + grouped.size*20} )">
                     <circle
+                        class="button"
                         r="10" 
                         stroke = "black" 
                         fill={select_deselect_all === true ? "lightblue": "white"}
@@ -240,10 +242,14 @@
 
 <style>
 
-.line-plot {
-    position: absolute;
-    left: 280px;
+:root {
+    user-select: none;
 }
 
+
+
+.button {
+    cursor: pointer;
+}
 
 </style>
