@@ -38,7 +38,7 @@
     // make line
     $: line = d3
         .line()
-        .x((d) => x(d.gamelength)-marginLeft).y((d) => y(d.earnedgold));
+        .x((d) => x(d.gamelength)).y((d) => y(d.earnedgold));
 
     // group data by champion
     data = d3.group(faker_grouped, (d) => d.champion);
@@ -113,7 +113,8 @@
                 >
                     Earned Gold
                 </text>
-
+            </g>
+            
             <!-- lines faker_grouped -->
             <g stroke-opacity=".75">
                 {#each data as d, i}
@@ -122,6 +123,7 @@
                         d={line(d[1])}
                         stroke={color(i)}
                         stroke-width={checked_champs[d[0]] === true ? "2": "0"}
+                        fill="none"
                     />
                 {/each}
             </g>
@@ -131,6 +133,7 @@
                 d={line(faker_total)}
                 stroke="black"
                 stroke-width={overall === true ? "2": "0"}
+                fill="none"
             />
             
         </svg>
