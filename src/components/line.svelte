@@ -15,7 +15,7 @@
     let svg_line;
     let svg_legend;
     let lines;
-    let dots;
+    let points;
 
     // Placeholders for the axis elements.
     let gx;
@@ -25,13 +25,13 @@
     let select_deselect_all = true;
 
     // map gamelength to x-coordinate on screen
-    $: x = d3
+    let x = d3
         .scaleLinear()
         .domain(d3.extent(data, (d) => d.gamelength))
         .range([marginLeft, width - marginRight]);
 
     // map earnedgold to y-coordinate on screen
-    $: y = d3
+    let y = d3
         .scaleLinear()
         .domain([0, 14000])
         .range([height - marginBottom, marginTop]);
@@ -60,7 +60,8 @@
             (g) => g.selectAll('.tick line')
             .clone()
             .attr('x2', width - marginRight - marginLeft)
-            .attr('stroke-opacity', (d) => (d === 0 ? 1 : 0.1)));
+            .attr('stroke-opacity', (d) => (d === 0 ? 1 : 0.1))
+        );
 
     // color line by champion
     $: color = d3.scaleOrdinal(d3.schemeTableau10);
@@ -87,20 +88,81 @@
     // interactive tooltip
     let tooltipPt = null;
 
+    // calculate x,y coordinates of all data points
+    let coords = [];
+    for (let i = 0; i < data.length; i++){
+        coords.push([x(data[i].gamelength), y(data[i].earnedgold)]);
+    }
     
     function onPointerMove(event) {
+        // find the closest point to the pointer, euclidean distance
+        let pointer = d3.pointer(event);
+        let min_dist = 100000;
+        let min_index = 0;
+        for (let i = 0; i < coords.length; i++){
+            let dist = Math.sqrt((pointer[0] - coords[i][0])**2 + (pointer[1] - coords[i][1])**2);
+            if (dist < min_dist){
+                min_dist = dist;
+                min_index = i;
+            }
+        }
+        // only set tooltipPt if checkbox is checked
+        if (checked_champs[data[min_index].champion] === true){
+            tooltipPt = data[min_index];
+        }
+        //console.log(tooltipPt)
+
+        /*
+            show line if that line's champ attribute matches tooltipPt.champion,
+            set opacity of other lines to 0.1.
+        */
+        if (tooltipPt){
+            d3.selectAll("path").attr("stroke-opacity", function() {
+                // dont change the opacity of the y-axis line
+                if (!d3.select(this).classed("domain")){
+                    const champAttribute = d3.select(this).attr("champ");
+                    if (champAttribute === tooltipPt.champion && checked_champs[champAttribute] === true) {
+                        console.log("Selected Path Champion:", champAttribute);
+                        return 0.75;
+                    } else {
+                        return 0.1;
+                    }
+                }
+            });
+        }
+
+
+        /*
+            show circle closest to pointer if that circle's champ attribute matches tooltipPt.champion,
+            set opacity of other circles to 0.
+        */
+        if (tooltipPt){
+            d3.selectAll("circle").attr("opacity", function() {
+                if (!d3.select(this).classed("button")) {
+                    const champAttribute = d3.select(this).attr("champ");
+                    if (champAttribute === tooltipPt.champion && checked_champs[champAttribute] === true) {
+                        console.log("Selected Circle Champion:", champAttribute);
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                }
+            });
+        }
+
+
     }
 
     function onPointerEnter(event) {
-        d3.select(lines).attr("stroke-opacity", ".1");
-        d3.select(dots).attr("opacity", "1");
+        // changes the opacity of the line that matches the tooltipPt to 0.75, and the rest to 0.1
     }
 
 
     function onPointerLeave(event) {
         tooltipPt = null;
-        d3.select(lines).attr("stroke-opacity", ".75");
-        d3.select(dots).attr("opacity", "0");
+        d3.selectAll("path").attr("stroke-opacity", 0.75);
+        d3.selectAll("circle").attr("opacity", 0);
+        d3.selectAll(".button").attr("opacity", 1);
     }
     
     $: d3.select(svg_line)
@@ -122,7 +184,21 @@
         >
         
             <!-- x-axis -->
-            <g bind:this={gx} transform="translate(0,{height - marginBottom})" />
+            <g 
+                bind:this={gx}
+                transform="translate(0,{height - marginBottom})" 
+            >
+                <text
+                    x={width-70}
+                    y="{-10}"
+                    dy="0.32em"
+                    fill="#000"
+                    font-weight="bold"
+                    text-anchor="start"
+                >
+                    Minutes
+                </text>
+            </g>
             
             <!-- y-axis -->
             <g bind:this={gy} transform="translate({marginLeft},0)">
@@ -137,32 +213,68 @@
                 </text>
             </g>
             
-            <!-- lines -->
-            <g bind:this={lines} stroke-opacity=".75">
-                {#each grouped as d, i}
-                    <path
-                        key={i}
-                        d={line(d[1])}
-                        stroke={d[0] === "Overall" ? "black" : color(i)}
-                        stroke-width={checked_champs[d[0]] === true ? "2": "0"}
-                        fill="none"
-                    />
-                {/each}
-            </g>
+        <!-- lines -->
+        <g bind:this={lines}>
+            {#each grouped as d, i}
+                <path
+                    key={i}
+                    d={line(d[1])}
+                    stroke={d[0] === "Overall" ? "black" : color(i)}
+                    stroke-width={checked_champs[d[0]] === true ? "2": "0"}
+                    fill="none"
+                    champ={d[0]}
+                    stroke-opacity=.75
+                />
+            {/each}
+        </g>
             
-            <!-- dots-->
-            <g bind:this={dots} stroke="#000" stroke-opacity="0.2">
+            <!-- points -->
+            <g bind:this={points} stroke="#000" stroke-opacity="0.2">
                 {#each data as d, i}
                     <circle
                         key={i}
                         cx={x(d.gamelength)}
                         cy={y(d.earnedgold)}
-                        r="2.5"
+                        r="1.5"
                         fill="black"
-                        opacity = .75
+                        opacity="0"
+                        champ={d.champion}
                     />
                 {/each}
             </g>
+
+            <!-- tooltip -->
+            {#if tooltipPt}
+            <g transform="translate({x(tooltipPt.gamelength)},{y(tooltipPt.earnedgold)-50})" text-anchor="middle">
+                <text 
+                    font-size="12px"
+                    dy="0"
+                    opacity={checked_champs[tooltipPt.champion] === true ? "1": "0"}
+                    font-weight="500"
+                >
+                    {tooltipPt.champion}
+                </text>
+
+                <text
+                    font-size="12px"
+                    dy="1.2em"
+                    opacity={checked_champs[tooltipPt.champion] === true ? "1": "0"}
+                    font-weight="500"
+                >
+                    {tooltipPt.gamelength} minutes
+                </text>
+
+                <text 
+                    font-size="12px" 
+                    dy="2.4em"
+                    opacity={checked_champs[tooltipPt.champion] === true ? "1": "0"}
+                    font-weight="500"
+                >
+                    {Math.round(tooltipPt.earnedgold)} gold
+                </text>
+            </g>
+            {/if}
+
             
         </svg>
 
