@@ -149,13 +149,8 @@
                 }
             });
         }
-
-
     }
 
-    function onPointerEnter(event) {
-        // changes the opacity of the line that matches the tooltipPt to 0.75, and the rest to 0.1
-    }
 
 
     function onPointerLeave(event) {
@@ -166,8 +161,7 @@
     }
     
     $: d3.select(svg_line)
-        .on('pointermove', onPointerMove)
-        .on('pointerenter', onPointerEnter)
+        .on('pointermove pointerenter', onPointerMove)
         .on('pointerleave', onPointerLeave);
 
 </script>
