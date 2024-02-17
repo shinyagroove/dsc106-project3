@@ -1,8 +1,8 @@
 <script>
     import * as d3 from 'd3';
 
-    export let faker_grouped;
-    export let faker_total;
+    export let data;
+
 
 
     const width = 928;
@@ -12,21 +12,22 @@
     const marginBottom = 30;
     const marginLeft = 40;
 
-    let svg;
-    let legend;
+    let svg_line;
+    let svg_legend;
+    let lines;
+    let dots;
 
     // Placeholders for the axis elements.
     let gx;
     let gy;
 
-    let data;
     let checked_champs = {};
-    let overall = true;
+    let select_deselect_all = true;
 
     // map gamelength to x-coordinate on screen
     $: x = d3
         .scaleLinear()
-        .domain(d3.extent(faker_grouped, (d) => d.gamelength))
+        .domain(d3.extent(data, (d) => d.gamelength))
         .range([marginLeft, width - marginRight]);
 
     // map earnedgold to y-coordinate on screen
@@ -41,9 +42,10 @@
         .x((d) => x(d.gamelength)).y((d) => y(d.earnedgold));
 
     // group data by champion
-    data = d3.group(faker_grouped, (d) => d.champion);
-    data.forEach(d => {
-        checked_champs[d[0].champion] = true
+    let grouped;
+    grouped = d3.group(data, (d) => d.champion);
+    grouped.forEach(d => {
+        checked_champs[d[0].champion] = true;
     });
 
     // x-axis
@@ -63,36 +65,55 @@
     // color line by champion
     $: color = d3.scaleOrdinal(d3.schemeTableau10);
 
-
-
-    $: console.log(checked_champs);
-    $: console.log(overall);
-
-    function uncheck_all(data){
-        uncheck_overall();
-        data.forEach((d, i) => {
-            uncheck_champ(d);
-        });
-        
-        
+    function uncheck_all(){
+        if (select_deselect_all === true){
+            for (let key in checked_champs){
+                checked_champs[key] = false;
+            }
+            select_deselect_all = false;
+        } else {
+            for (let key in checked_champs){
+                checked_champs[key] = true;
+            }
+            select_deselect_all = true;
+        }
     }
-    function uncheck_overall(){
-        overall = !overall;
-    };
-    
+
     function uncheck_champ(d){
         checked_champs[d[0]] = !checked_champs[d[0]];
     };
 
+    // interactive tooltip for line
+    let tooltipPt = null;
+
+    function onPointerMove(event) {
+    }
+
+    function onPointerEnter(event) {
+        d3.select(lines).attr("stroke-opacity", ".2");
+        d3.select(dots).attr("opacity", "1");
+    }
 
 
+    function onPointerLeave(event) {
+        tooltipPt = null;
+        d3.select(lines).attr("stroke-opacity", ".75");
+        d3.select(dots).attr("opacity", "0");
+    }
+    
+    $: d3.select(svg_line)
+        .on('pointermove', onPointerMove)
+        .on('pointerenter', onPointerEnter)
+        .on('pointerleave', onPointerLeave);
+
+    console.log(grouped)
 </script>
 
 <main>
     <div class="line-plot">
             
         <svg
-            bind:this={svg}
+            bind:this={svg_line}
             {width}
             {height}
             viewBox="0 0 {width} {height}"
@@ -115,38 +136,45 @@
                 </text>
             </g>
             
-            <!-- lines faker_grouped -->
-            <g stroke-opacity=".75">
-                {#each data as d, i}
+            <!-- lines -->
+            <g bind:this={lines} stroke-opacity=".75">
+                {#each grouped as d, i}
                     <path
                         key={i}
                         d={line(d[1])}
-                        stroke={color(i)}
+                        stroke={d[0] === "Overall" ? "black" : color(i)}
                         stroke-width={checked_champs[d[0]] === true ? "2": "0"}
                         fill="none"
                     />
+                    {console.log(d[0])}
                 {/each}
             </g>
-
-            <!-- line faker_total -->
-            <path
-                d={line(faker_total)}
-                stroke="black"
-                stroke-width={overall === true ? "2": "0"}
-                fill="none"
-            />
+            
+            <!-- dots-->
+            <g bind:this={dots} stroke="#000" stroke-opacity="0.2">
+                {#each data as d, i}
+                    <circle
+                        key={i}
+                        cx={x(d.gamelength)}
+                        cy={y(d.earnedgold)}
+                        r="2.5"
+                        fill={color(i)}
+                        opacity = 0
+                    />
+                {/each}
+            </g>
             
         </svg>
 
         <svg
-            bind:this={svg}
+            bind:this={svg_legend}
             width={200}
             {height}
             viewBox="0 0 {200} {height}"
             style="max-width: 100%; height: auto;"
         >
             <!-- legend -->
-            <g bind:this={legend} transform="translate(10, 0)">
+            <g transform="translate(10, 0)">
                 <text
                     y={marginTop}
                     font-size="12"
@@ -157,13 +185,12 @@
                     Champion
                 </text>
 
-                <!-- faker_grouped -->
-                {#each data as d, i}
+                {#each grouped as d, i}
                     <g transform="translate(0, {40 + i * 20} )">
                         <rect
                             width="10"
                             height="10"
-                            fill={checked_champs[d[0]] === true ? color(i): "white"}
+                            fill={d[0] === "Overall" && checked_champs[d[0]] === true ? "black" : checked_champs[d[0]] === true ? color(i) : "white"}
                             stroke = "black"
                             id = "{d} rect" 
                             on:click = {uncheck_champ(d)}
@@ -180,37 +207,16 @@
                         </text>
                     </g>
                 {/each}
-
-                <!-- faker_total -->
-                <g transform="translate(0, {40 + data.size*20} )">
-                    <rect
-                        width="10"
-                        height="10"
-                        stroke = "black"
-                        fill={overall === true ? "black": "white"}
-                        id = "overall rect"
-                        on:click = {uncheck_overall}
-                    />
-                    <text
-                        x="15"
-                        y="10"
-                        font-size="12"
-                        font-weight="auto"
-                        fill="black"
-                        text-anchor="start"
-                    >
-                        Overall
-                    </text>
-                </g>
                 
-                <g transform = "translate(5, {70 + data.size*20} )">
+                <!-- Select / Deselect All -->
+                <g transform = "translate(5, {50 + grouped.size*20} )">
                     <circle
                         r="10" 
                         stroke = "black" 
-                        fill={overall === true ? "lightblue": "white"}
-                        on:click = {uncheck_all(data)}
-                        >
-                    </circle>
+                        fill={select_deselect_all === true ? "lightblue": "white"}
+                        on:click = {uncheck_all}
+                    />
+
                     <text
                         x="15"
                         y="5"

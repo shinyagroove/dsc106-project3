@@ -4,17 +4,12 @@
     import {onMount} from 'svelte';
 
 
-    let faker_grouped;
-    let faker_total;
+    let data;
 
     // fetch faker_grouped and faker_total onmount, from static folder
     onMount(async () => {
-        const res = await fetch('faker_grouped.json');
-        faker_grouped = await res.json();
-
-        const res2 = await fetch('faker_total.json');
-        faker_total = await res2.json();
-        
+        const res = await fetch('data.json');
+        data = await res.json();
     });
 
 
@@ -23,8 +18,8 @@
 <main>
     <h1>Line Graph</h1>
     <!-- pass faker_grouped and faker_total into Line component-->
-    {#if faker_grouped && faker_total}
-        <Line {faker_grouped} {faker_total} />
+    {#if data}
+        <Line {data} />
     {/if}
 
 
