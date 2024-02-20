@@ -1,0 +1,9 @@
+We decided to encode the lengths of game time (which were aggregated after rounding to the closest minute) on the X-axis and the average gold earned for a specific game time on the Y-axis. We also added lines connecting the data points of each champion, and encoded distinctly different colors on these lines in order to represent different champions. 
+
+These design choices were made so that the viewer could easily identify the relationship between the length of the game and the gold earned. The color of each line stands out from the background, which was selected to be a slightly off-white color to be a bit easier on the eyes as the viewer examines the graph. The encoding of a line allows the user to visually follow the gold earned as the game length increases, recognizing the differences (or lack thereof) between the slopes connecting two data points. Additionally, choosing distinct colors for the lines allows for comparisons of different lines against each other to be easier. 
+
+We decided to allow users to click on the boxes in the legend to toggle the visibility of each line, and we also added a button to select or deselect all of the lines in order to make it easier for the viewer to view the relationship between a few lines specifically (since they are all selected by default). Allowing the user to select and deselect specific lines allows them to choose which lines they wish to compare and analyze. 
+
+We also allowed the user to hover over a specific point on the graph in order to bring up the champion, gold, and game length represented by that point. This allows them to easily perceive specific gold values and times without having to try and analyze specifically where the values on the graph line up. 
+
+As for our individual contributions, Aneesh imported the data and cleaned it so that it would be fit to export to our webpage. He also worked on making the legend interactive, as well as typing the writeup of the project. 
