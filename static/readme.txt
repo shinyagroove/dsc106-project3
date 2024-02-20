@@ -6,4 +6,4 @@ We decided to allow users to click on the boxes in the legend to toggle the visi
 
 We also allowed the user to hover over a specific point on the graph in order to bring up the champion, gold, and game length represented by that point. This allows them to easily perceive specific gold values and times without having to try and analyze specifically where the values on the graph line up. 
 
-As for our individual contributions, Aneesh imported the data and cleaned it so that it would be fit to export to our webpage. He also worked on making the legend interactive, as well as typing the writeup of the project. 
+As for our individual contributions, Aneesh imported the data and cleaned it so that it would be fit to export to our webpage. He also worked on making the legend interactive, as well as typing the writeup of the project. Qilong created the basic line graph, implemented the interactivity of lines, and fixed some functional bugs.
