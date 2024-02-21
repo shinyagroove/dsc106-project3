@@ -73,6 +73,9 @@
             As for our individual contributions, Aneesh imported the data and cleaned it so that it would be fit to export 
             to our webpage. He also worked on making the legend interactive, as well as typing the writeup of the project. 
             Qilong created the basic line graph, implemented the interactivity of lines, and fixed some functional bugs.
+            Beomsuk created parts of the interactivity in the graph, and focused on implementing the interactions with selecting
+            and deselecting each champion and the lines for them. 
+            
         </p>
     </div>
 </main>
